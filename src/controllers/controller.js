@@ -100,8 +100,39 @@ const updateBlog = async (req, res) => {
   }
 };
 
+const deleteBlog = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const blog = await prisma.post.findFirst({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    // delete data
+    await prisma.post.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "success delete data blog",
+      data: blog,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "failed delete data blogs",
+    });
+  }
+};
+
 module.exports = {
   getBlog,
   createBlog,
   updateBlog,
+  deleteBlog,
 };
