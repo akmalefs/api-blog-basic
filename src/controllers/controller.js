@@ -1,4 +1,5 @@
 const prisma = require("../helpers/prisma");
+const { blogSchema } = require("../helpers/schema");
 
 const getBlog = async (req, res) => {
   try {
@@ -16,6 +17,41 @@ const getBlog = async (req, res) => {
   }
 };
 
+const createBlog = async (req, res) => {
+  try {
+    // validate data
+    const parse = blogSchema.safeParse(req.body);
+
+    if (!parse.success) {
+      const errorMassage = parse.error.issues.map(
+        (err) => `${err.path} - ${err.message}`
+      );
+      return res.json({
+        success: false,
+        message: errorMassage,
+        data: null,
+      });
+    }
+
+    // create data
+    const blog = await prisma.post.create({
+      data: {
+        title: parse.data.title,
+        author_name: parse.data.author_name,
+        content: parse.data.content,
+        published: parse.data.published,
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "success create data blog",
+      data: blog,
+    });
+  } catch (error) {}
+};
+
 module.exports = {
   getBlog,
+  createBlog,
 };
